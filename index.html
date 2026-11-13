@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>멍멍 STOP</title>
+<style>
+  :root{
+    --bg:#fff8f0; --card:#ffffff; --ink:#3a2e2a; --sub:#8a7a72;
+    --main:#ff7a59; --main2:#ffb347; --ok:#3bb273; --line:#f1e4d8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;background:var(--bg);color:var(--ink);padding:20px 16px 40px;max-width:480px;margin:0 auto}
+  header{text-align:center;margin-bottom:18px}
+  header .dog{font-size:46px}
+  h1{font-size:26px;margin-top:4px}
+  header p{color:var(--sub);font-size:14px;margin-top:4px}
+  .card{background:var(--card);border-radius:20px;padding:18px;margin-bottom:14px;box-shadow:0 2px 10px rgba(120,80,40,.07);border:1px solid var(--line)}
+  .card h2{font-size:16px;margin-bottom:12px}
+  .big{
+    width:100%;aspect-ratio:1/1;max-width:240px;display:block;margin:6px auto 10px;border:none;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,var(--main2),var(--main));color:#fff;font-size:22px;font-weight:800;
+    box-shadow:0 10px 24px rgba(255,122,89,.35);touch-action:none;user-select:none;-webkit-user-select:none;cursor:pointer;transition:transform .1s
+  }
+  .big small{display:block;font-size:13px;font-weight:500;margin-top:6px;opacity:.9}
+  .big.on{transform:scale(.94);animation:pulse .5s infinite alternate}
+  @keyframes pulse{to{box-shadow:0 0 0 18px rgba(255,122,89,.15)}}
+  .status{text-align:center;font-size:14px;color:var(--sub);min-height:20px}
+  .row{display:flex;justify-content:space-between;align-items:center;font-size:14px;margin-bottom:6px}
+  .row b{font-size:18px;color:var(--main)}
+  input[type=range]{width:100%;accent-color:var(--main);margin-bottom:14px}
+  .presets{display:flex;gap:8px;margin-bottom:6px}
+  .presets button,.sub-btn{flex:1;padding:10px 4px;border-radius:12px;border:1px solid var(--line);background:#fff7f2;font-size:13px;color:var(--ink);cursor:pointer}
+  .presets button.sel{background:var(--main);color:#fff;border-color:var(--main)}
+  .sub-btn{width:100%;margin-top:4px}
+  .stat{display:flex;gap:10px}
+  .stat div{flex:1;background:#fff7f2;border-radius:14px;padding:12px;text-align:center}
+  .stat b{display:block;font-size:24px;color:var(--main)}
+  .stat span{font-size:12px;color:var(--sub)}
+  .reward{width:100%;margin-top:10px;padding:12px;border:none;border-radius:14px;background:var(--ok);color:#fff;font-size:15px;font-weight:700;cursor:pointer}
+  ol{padding-left:20px;font-size:14px;line-height:1.7}
+  ol li{margin-bottom:4px}
+  .warn{background:#fff3cd;border:1px solid #ffe08a;border-radius:14px;padding:12px;font-size:13px;line-height:1.6}
+  .warn b{display:block;margin-bottom:4px}
+  .hint{font-size:12px;color:var(--sub);line-height:1.5}
+</style>
+</head>
+<body>
+<header>
+  <div class="dog">🐶</div>
+  <h1>멍멍 STOP</h1>
+  <p>짖을 때 꾹 누르면 강아지만 듣는 높은 소리가 나요</p>
+</header>
+
+<section class="card">
+  <button class="big" id="bigBtn">꾹 누르기<small>최대 2초까지 울려요</small></button>
+  <div class="status" id="status">준비 완료</div>
+</section>
+
+<section class="card">
+  <h2>🎚️ 소리 설정</h2>
+  <div class="row"><span>주파수</span><b id="freqLabel">18,000 Hz</b></div>
+  <input type="range" id="freq" min="12000" max="22000" step="500" value="18000">
+  <div class="presets">
+    <button data-f="15000">15k<br>잘 들림</button>
+    <button data-f="18000" class="sel">18k<br>기본</button>
+    <button data-f="20000">20k<br>거의 안 들림</button>
+  </div>
+  <p class="hint">숫자가 클수록 사람 귀에는 안 들리지만, 폰 스피커가 약하게 내요. 우리 강아지가 반응하는 값을 찾아보세요.</p>
+  <div class="row" style="margin-top:14px"><span>세기</span><b id="volLabel">70%</b></div>
+  <input type="range" id="vol" min="10" max="100" step="5" value="70">
+  <button class="sub-btn" id="testBtn">🔈 스피커 확인 (사람도 들리는 소리 0.3초)</button>
+</section>
+
+<section class="card">
+  <h2>📊 오늘의 훈련 기록</h2>
+  <div class="stat">
+    <div><b id="cntUse">0</b><span>소리 사용</span></div>
+    <div><b id="cntReward">0</b><span>칭찬·간식</span></div>
+  </div>
+  <button class="reward" id="rewardBtn">🦴 조용해졌어요! 칭찬했음</button>
+  <p class="hint" style="margin-top:8px">소리보다 칭찬 숫자가 많아지는 게 목표예요. 이 기록은 페이지를 닫으면 사라져요.</p>
+</section>
+
+<section class="card">
+  <h2>📝 이렇게 쓰세요</h2>
+  <ol>
+    <li>강아지가 짖기 <b>시작할 때</b> 버튼을 짧게 눌러요.</li>
+    <li>짖음이 멈추면 <b>바로</b> 칭찬하고 간식을 줘요.</li>
+    <li>소리만 계속 쓰면 금방 익숙해져서 효과가 떨어져요. 칭찬과 꼭 같이 쓰세요.</li>
+    <li>2주 써도 안 줄면 짖는 이유(분리불안, 경계, 심심함)를 먼저 살펴보세요.</li>
+  </ol>
+</section>
+
+<section class="warn">
+  <b>⚠️ 솔직한 한계</b>
+  폰 스피커는 진짜 초음파(20kHz 이상)를 잘 못 내요. 그래서 이 앱은 "사람에게 잘 안 들리는 고음" 수준이고, 시중 전용 기기보다 약할 수 있어요. 1살 미만 아기 강아지, 다른 반려동물(고양이·햄스터)이 있는 방에서는 쓰지 마세요. 이 화면에서는 마이크를 쓸 수 없어서, 짖음을 듣고 자동으로 울리는 기능은 없어요.
+</section>
+
+<script>
+let ctx=null, osc=null, gain=null, timer=null, playing=false;
+let uses=0, rewards=0;
+const $=id=>document.getElementById(id);
+const big=$('bigBtn'), status=$('status');
+
+function getCtx(){
+  if(!ctx){
+    const AC=window.AudioContext||window.webkitAudioContext;
+    ctx=new AC();
+  }
+  if(ctx.state==='suspended') ctx.resume();
+  return ctx;
+}
+function startTone(freq, maxMs){
+  try{
+    const c=getCtx();
+    stopTone();
+    osc=c.createOscillator(); gain=c.createGain();
+    osc.type='sine'; osc.frequency.value=freq;
+    const v=$('vol').value/100;
+    gain.gain.setValueAtTime(0,c.currentTime);
+    gain.gain.linearRampToValueAtTime(v,c.currentTime+0.03);
+    osc.connect(gain).connect(c.destination);
+    osc.start();
+    playing=true;
+    timer=setTimeout(()=>{stopTone(); if(maxMs>=2000) status.textContent='2초 지나서 자동으로 멈췄어요';},maxMs);
+  }catch(e){status.textContent='이 기기에서는 소리를 낼 수 없어요';}
+}
+function stopTone(){
+  clearTimeout(timer);
+  if(osc&&ctx){
+    try{
+      gain.gain.cancelScheduledValues(ctx.currentTime);
+      gain.gain.setValueAtTime(gain.gain.value,ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0,ctx.currentTime+0.03);
+      osc.stop(ctx.currentTime+0.05);
+    }catch(e){}
+  }
+  osc=null; playing=false; big.classList.remove('on');
+}
+
+big.addEventListener('pointerdown',e=>{
+  e.preventDefault();
+  big.classList.add('on');
+  status.textContent='🔊 울리는 중… ('+Number($('freq').value).toLocaleString()+' Hz)';
+  uses++; $('cntUse').textContent=uses;
+  startTone(Number($('freq').value),2000);
+});
+['pointerup','pointerleave','pointercancel'].forEach(ev=>big.addEventListener(ev,()=>{
+  if(playing){stopTone(); status.textContent='멈췄어요. 조용해지면 칭찬해 주세요!';}
+}));
+big.addEventListener('contextmenu',e=>e.preventDefault());
+
+$('freq').addEventListener('input',e=>{
+  $('freqLabel').textContent=Number(e.target.value).toLocaleString()+' Hz';
+  document.querySelectorAll('.presets button').forEach(b=>b.classList.toggle('sel',b.dataset.f===e.target.value));
+});
+document.querySelectorAll('.presets button').forEach(b=>b.addEventListener('click',()=>{
+  $('freq').value=b.dataset.f; $('freq').dispatchEvent(new Event('input'));
+}));
+$('vol').addEventListener('input',e=>$('volLabel').textContent=e.target.value+'%');
+$('testBtn').addEventListener('click',()=>{startTone(2000,300); status.textContent='삐— 소리가 났다면 스피커 정상!';});
+$('rewardBtn').addEventListener('click',()=>{rewards++; $('cntReward').textContent=rewards; status.textContent='잘했어요! 🐾';});
+</script>
+</body>
+</html>
